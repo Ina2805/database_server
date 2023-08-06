@@ -2,5 +2,6 @@ package Util;
 
 public enum NetworkType {
     GET_ALL_USERS,
-    GET_USER_BY_ID
+    DELETE_USER,
+    SAVE_USER
 }

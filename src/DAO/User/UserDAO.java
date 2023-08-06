@@ -4,10 +4,7 @@ import DAO.User.IUserDAO;
 import Models.User.User;
 import Networking.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,22 +19,19 @@ public class UserDAO implements IUserDAO {
     @Override
     public List<User> getAllUsersFromDatabase() {
         List<User> userList = new ArrayList<>();
-        try(Connection connection = dbConnection.getDBConnection())
-        {
+        try (Connection connection = dbConnection.getDBConnection()) {
             String query = "SELECT userid, username FROM usertable";
             PreparedStatement statement = connection.prepareStatement(query);
 
             ResultSet resultSet = statement.executeQuery();
 
-            while(resultSet.next())
-            {
+            while (resultSet.next()) {
                 String userId = resultSet.getString("userid");
                 String userName = resultSet.getString("username");
                 User user = new User(userId, userName);
                 userList.add(user);
             }
-        } catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return userList;
@@ -72,4 +66,50 @@ public class UserDAO implements IUserDAO {
         return user;
     }
 
+    @Override
+    public boolean saveUser(User user) {
+
+        Connection connection = null;
+
+        try {
+            connection = dbConnection.getDBConnection();
+            String query = "INSERT INTO usertable (userid, username) VALUES (?, ?)";
+
+            PreparedStatement statement = connection.prepareStatement(query);
+            int parsedUserId = Integer.parseInt(user.getUserId());
+            statement.setInt(1, parsedUserId);
+            statement.setString(2, user.getUserName());
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                return true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteUser(String userid) {
+        Connection connection = null;
+        try
+        {
+            connection = dbConnection.getDBConnection();
+            String query = "DELETE FROM usertable WHERE userid = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, userid);
+
+            statement.executeQuery();
+            return true;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
 }

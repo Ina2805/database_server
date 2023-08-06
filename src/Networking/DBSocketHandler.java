@@ -42,11 +42,7 @@ public class DBSocketHandler implements Runnable {
             String arrString = new String(requestBytes, 0, arrayLength);
             NetworkRequest networkRequest = gson.fromJson(arrString, NetworkRequest.class);
 
-
-        NetworkRequest request = gson.fromJson(arrString, NetworkRequest.class);
-
-       switch (request.getNetworkType())
-
+       switch (networkRequest.getNetworkType())
        {
            case GET_ALL_USERS: {
                System.out.println(networkRequest.getNetworkType());
@@ -63,9 +59,45 @@ public class DBSocketHandler implements Runnable {
                    e.printStackTrace();
                }
            }
+
+           case SAVE_USER: {
+               System.out.println("Adding user to the database: " + networkRequest.getObject());
+               try
+               {
+                   User newUser = gson.fromJson(networkRequest.getObject(), User.class);
+                   boolean response = userDAO.saveUser(newUser);
+
+                   String jsonString = new Gson().toJson(response);
+                   byte[] array = jsonString.getBytes();
+                   outputStream.write(array, 0, array.length);
+                   break;
+               }
+               catch (Exception e)
+               {
+                   e.printStackTrace();
+               }
+           }
+
+           case DELETE_USER: {
+               System.out.println("Deleting User: " + networkRequest.getObject());
+               try
+               {
+                   String userId = gson.fromJson(networkRequest.getObject(), String.class);
+                   boolean response = userDAO.deleteUser(userId);
+                   String jsonString = new Gson().toJson(response);
+                   byte[] array = jsonString.getBytes();
+                   outputStream.write(array, 0, array.length);
+                   break;
+               }
+               catch (Exception e)
+               {
+                   e.printStackTrace();
+               }
+           }
        }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }

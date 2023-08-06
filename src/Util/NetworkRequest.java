@@ -4,34 +4,25 @@ import java.io.Serializable;
 
 public class NetworkRequest implements Serializable {
 
-    private String data;
+    private String object;
     private NetworkType networkType;
 
-    public NetworkRequest(String data, NetworkType networkType) {
-        this.data = data;
+    public NetworkRequest(NetworkType networkType, String object) {
+        this.object = object;
         this.networkType = networkType;
     }
 
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
+    public String getObject() {
+        return object;
     }
 
     public NetworkType getNetworkType() {
         return networkType;
     }
-
-    public void setNetworkType(NetworkType networkType) {
-        this.networkType = networkType;
-    }
-
     @Override
     public String toString() {
         return "NetworkRequest{" +
-                "data='" + data + '\'' +
+                "data='" + object + '\'' +
                 ", networkType=" + networkType +
                 '}';
     }
