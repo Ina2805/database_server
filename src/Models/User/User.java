@@ -1,6 +1,5 @@
 package Models.User;
 import java.io.Serializable;
-import java.util.Objects;
 
 
 public class User implements Serializable {
@@ -23,6 +22,15 @@ public class User implements Serializable {
     public String getUserName() {
         return userName;
     }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
         return "User{" +

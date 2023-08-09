@@ -39,25 +39,22 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public User getUserByIdFromDatabase(String userId) {
-        User user = null;
-        String query = "SELECT * FROM users WHERE user_id = ?";
+        User user = new User();
+        String query = "SELECT * FROM usertable WHERE userid = ?";
 
         try (Connection connection = dbConnection.getDBConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            // Set the parameter for the query
             statement.setString(1, userId);
 
-            // Execute the query
             ResultSet resultSet = statement.executeQuery();
 
-            // Check if a user with the given ID was found
             if (resultSet.next()) {
-                String fetchedUserId = resultSet.getString("user_id");
-                String userName = resultSet.getString("user_name");
+                String fetchedUserId = resultSet.getString("userid");
+                String userName = resultSet.getString("username");
 
-                // Create a new User object with the fetched data
-                user = new User(fetchedUserId, userName);
+                user.setUserId(fetchedUserId);
+                user.setUserName(userName);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -76,8 +73,7 @@ public class UserDAO implements IUserDAO {
             String query = "INSERT INTO usertable (userid, username) VALUES (?, ?)";
 
             PreparedStatement statement = connection.prepareStatement(query);
-            int parsedUserId = Integer.parseInt(user.getUserId());
-            statement.setInt(1, parsedUserId);
+            statement.setString(1, user.getUserId());
             statement.setString(2, user.getUserName());
 
             int rowsAffected = statement.executeUpdate();
@@ -95,21 +91,34 @@ public class UserDAO implements IUserDAO {
     @Override
     public boolean deleteUser(String userid) {
         Connection connection = null;
-        try
-        {
+        try {
             connection = dbConnection.getDBConnection();
             String query = "DELETE FROM usertable WHERE userid = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, userid);
 
-            statement.executeQuery();
+            statement.executeUpdate();
             return true;
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
+    }
 
+    public boolean editUser(User user) {
+        Connection connection = null;
+        try {
+            connection = dbConnection.getDBConnection();
+            String query = "UPDATE usertable SET username = ? WHERE userid = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, user.getUserName());
+            statement.setString(2, user.getUserId());
+
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

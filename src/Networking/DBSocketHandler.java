@@ -8,6 +8,7 @@ import Util.NetworkRequest;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.Connection;
 import java.util.List;
 
 public class DBSocketHandler implements Runnable {
@@ -41,7 +42,6 @@ public class DBSocketHandler implements Runnable {
             int arrayLength = inputStream.read(requestBytes, 0, requestBytes.length);
             String arrString = new String(requestBytes, 0, arrayLength);
             NetworkRequest networkRequest = gson.fromJson(arrString, NetworkRequest.class);
-
        switch (networkRequest.getNetworkType())
        {
            case GET_ALL_USERS: {
@@ -50,6 +50,22 @@ public class DBSocketHandler implements Runnable {
                try {
                    List<User> userList = userDAO.getAllUsersFromDatabase();
                    String jsonString = new Gson().toJson(userList);
+                   byte[] array = jsonString.getBytes();
+                   outputStream.write(array, 0, array.length);
+                   break;
+               }
+               catch (Exception e)
+               {
+                   e.printStackTrace();
+               }
+           }
+           case GET_USER_BY_ID: {
+               System.out.println(networkRequest.getNetworkType());
+
+               try {
+                   String userId = gson.fromJson(networkRequest.getObject(),String.class);
+                   User res = userDAO.getUserByIdFromDatabase(userId);
+                   String jsonString = new Gson().toJson(res);
                    byte[] array = jsonString.getBytes();
                    outputStream.write(array, 0, array.length);
                    break;
@@ -91,6 +107,19 @@ public class DBSocketHandler implements Runnable {
                }
                catch (Exception e)
                {
+                   e.printStackTrace();
+               }
+           }
+           case EDIT_USER: {
+               System.out.println("Editing User: " + networkRequest.getObject());
+               try {
+                   User editedUser = gson.fromJson(networkRequest.getObject(), User.class);
+                   boolean response = userDAO.editUser(editedUser);
+                   String jsonString = new Gson().toJson(response);
+                   byte[] array = jsonString.getBytes();
+                   outputStream.write(array, 0, array.length);
+                   break;
+               } catch (Exception e) {
                    e.printStackTrace();
                }
            }
